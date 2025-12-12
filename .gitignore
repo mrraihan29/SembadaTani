@@ -8,3 +8,9 @@ db.sqlite3
 
 # Media (Uploads)
 media/
+
+# Static files
+static/
+
+# Log files
+*.log
