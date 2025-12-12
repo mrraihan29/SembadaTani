@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% load django_bootstrap5 humanize %}
+{% load mathfilters %}
+{% block title %}Input Pembayaran{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card shadow-sm">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0">💸 Input Pembayaran</h5>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-warning">
+                    <strong>Invoice: {{ invoice.invoice_number }}</strong><br>
+                    Kios: {{ invoice.distribution.kios.name }}<br>
+                    Total Tagihan: Rp {{ invoice.total_amount|intcomma }}<br>
+                    <hr>
+                    <strong>Sisa Hutang: Rp {{ invoice.total_amount|sub:invoice.amount_paid|intcomma }}</strong>
+                </div>
+
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    {% bootstrap_form form %}
+                    <div class="d-grid mt-4">
+                        <button type="submit" class="btn btn-success fw-bold">Simpan Pembayaran</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

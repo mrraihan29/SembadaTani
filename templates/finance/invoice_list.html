@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+{% load humanize %}
+{% load mathfilters %}
+{% block title %}Monitoring Piutang{% endblock %}
+
+{% block content %}
+<h2 class="fw-bold text-dark mb-4">💰 Monitoring Piutang (Invoice)</h2>
+
+<div class="card shadow-sm">
+    <div class="card-body p-0">
+        <table class="table table-hover table-striped mb-0 align-middle">
+            <thead class="table-dark">
+                <tr>
+                    <th>No. Invoice</th>
+                    <th>Kios</th>
+                    <th>Jatuh Tempo</th>
+                    <th class="text-end">Total Tagihan</th>
+                    <th class="text-end">Sudah Bayar</th>
+                    <th class="text-end">Sisa</th>
+                    <th class="text-center">Status</th>
+                    <th class="text-center">Aksi</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for inv in invoices %}
+                <tr>
+                    <td class="fw-bold">{{ inv.invoice_number }}</td>
+                    <td>{{ inv.distribution.kios.name }}</td>
+                    <td>
+                        {{ inv.due_date|date:"d M Y" }}
+                        {% if inv.status != 'PAID' and inv.due_date < today %}
+                            <span class="badge bg-danger">Telat!</span>
+                        {% endif %}
+                    </td>
+                    <td class="text-end">Rp {{ inv.total_amount|intcomma }}</td>
+                    <td class="text-end text-success">Rp {{ inv.amount_paid|intcomma }}</td>
+                    <td class="text-end fw-bold text-danger">Rp {{ inv.total_amount|sub:inv.amount_paid|intcomma }}</td>
+                    <td class="text-center">
+                        {% if inv.status == 'PAID' %}
+                            <span class="badge bg-success">LUNAS</span>
+                        {% elif inv.status == 'PARTIAL' %}
+                            <span class="badge bg-warning text-dark">CICIL</span>
+                        {% else %}
+                            <span class="badge bg-danger">BELUM</span>
+                        {% endif %}
+                    </td>
+                    <td class="text-center">
+                        <a href="{% url 'print_invoice' inv.distribution.id %}" target="_blank" class="btn btn-sm btn-outline-secondary" title="Cetak PDF">🖨️</a>
+                        {% if inv.status != 'PAID' %}
+                        <a href="{% url 'payment_add' inv.id %}" class="btn btn-sm btn-success" title="Bayar">
+                            💸 Bayar
+                        </a>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="8" class="text-center py-4">Belum ada tagihan.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
