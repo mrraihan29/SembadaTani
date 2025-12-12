@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+
+{% block title %}Riwayat Penyaluran{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="fw-bold text-dark">🚚 Riwayat Penyaluran</h2>
+    <a href="{% url 'penyaluran_add' %}" class="btn btn-primary">
+        + Input Kirim Baru
+    </a>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-body p-0">
+        <table class="table table-hover table-striped mb-0">
+            <thead class="table-dark">
+                <tr>
+                    <th>No. Surat Jalan</th>
+                    <th>Tanggal</th>
+                    <th>Tujuan Kios</th>
+                    <th>Sumber SO</th>
+                    <th>Armada</th>
+                    <th class="text-end">Jumlah (Ton)</th>
+                    <th>Aksi</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for dist in distributions %}
+                <tr>
+                    <td class="fw-bold text-primary">{{ dist.do_number }}</td>
+                    <td>{{ dist.distribution_date|date:"d M Y" }}</td>
+                    <td>
+                        <strong>{{ dist.kios.name }}</strong><br>
+                        <small class="text-muted">{{ dist.kios.district }}</small>
+                    </td>
+                    <td>{{ dist.sales_order.so_code }}</td>
+                    <td>{{ dist.armada.plate_number|default:"-" }}</td>
+                    <td class="fw-bold text-end">{{ dist.tonnage_sent }}</td>
+                    <td>
+                    <div class="btn-group btn-group-sm">
+                        <a href="{% url 'print_sj' dist.id %}" target="_blank" class="btn btn-outline-dark" title="Cetak Surat Jalan">
+                            📄 SJ
+                        </a>
+                        <a href="{% url 'print_invoice' dist.id %}" target="_blank" class="btn btn-outline-success" title="Cetak Invoice">
+                            💰 Inv
+                        </a>
+                    </div>
+                </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="text-center py-4 text-muted">Belum ada pengiriman barang.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

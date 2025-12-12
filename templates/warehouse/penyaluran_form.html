@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% load django_bootstrap5 %}
+
+{% block title %}Input Penyaluran Barang{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0 fw-bold">📤 Input Penyaluran (Kirim ke Kios)</h5>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-warning">
+                    <small>⚠️ Pastikan <strong>Master Harga</strong> untuk jenis pupuk terkait sudah diisi di Admin Panel sebelum input ini. Jika tidak, pembuatan Invoice akan gagal.</small>
+                </div>
+                <form method="post">
+                    {% csrf_token %}
+                    {% bootstrap_form form %}
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                        <a href="{% url 'dashboard' %}" class="btn btn-secondary me-md-2">Batal</a>
+                        <button type="submit" class="btn btn-primary fw-bold">🚀 Proses Kirim</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+{% load humanize %} <html>
+<head>
+    <style>
+        body { font-family: Helvetica, sans-serif; font-size: 12px; }
+        .header { margin-bottom: 30px; }
+        .invoice-box { border: 1px solid #eee; padding: 20px; }
+        .total { font-size: 16px; font-weight: bold; }
+        table { width: 100%; border-collapse: collapse; }
+        th { background: #eee; padding: 10px; text-align: left; border-bottom: 1px solid #ddd; }
+        td { padding: 10px; border-bottom: 1px solid #eee; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>INVOICE / TAGIHAN</h1>
+        <h3>{{ company_name }}</h3>
+        <p>{{ company_address }}</p>
+    </div>
+
+    <table class="invoice-box">
+        <tr>
+            <td width="60%">
+                <strong>Tagihan Ke:</strong><br>
+                {{ inv.distribution.kios.name }}<br>
+                {{ inv.distribution.kios.address }}<br>
+                Telp: {{ inv.distribution.kios.phone }}
+            </td>
+            <td width="40%" style="text-align: right;">
+                <strong>No. Invoice:</strong> {{ inv.invoice_number }}<br>
+                <strong>Tanggal:</strong> {{ inv.created_at|date:"d M Y" }}<br>
+                <strong>Jatuh Tempo:</strong> <span style="color:red">{{ inv.due_date|date:"d M Y" }}</span>
+            </td>
+        </tr>
+    </table>
+
+    <br>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Deskripsi</th>
+                <th style="text-align: center;">Volume</th>
+                <th style="text-align: right;">Harga Satuan</th>
+                <th style="text-align: right;">Total</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Penebusan Pupuk {{ inv.distribution.sales_order.fertilizer_type }}</td>
+                <td style="text-align: center;">{{ inv.tonnage }} Ton</td>
+                <td style="text-align: right;">Rp {{ inv.price_per_ton|intcomma }}</td>
+                <td style="text-align: right;">Rp {{ inv.total_amount|intcomma }}</td>
+            </tr>
+            <tr>
+                <td colspan="3" style="text-align: right;" class="total">Total Tagihan:</td>
+                <td style="text-align: right;" class="total">Rp {{ inv.total_amount|intcomma }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <br><br>
+    <p><em>Mohon melakukan pembayaran sebelum tanggal jatuh tempo. Terima kasih.</em></p>
+</body>
+</html>

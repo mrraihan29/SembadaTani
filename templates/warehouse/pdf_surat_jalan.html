@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body { font-family: Helvetica, sans-serif; font-size: 12px; }
+        .header { text-align: center; margin-bottom: 20px; border-bottom: 2px solid black; padding-bottom: 10px; }
+        .title { font-size: 18px; font-weight: bold; text-transform: uppercase; margin-top: 5px;}
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid black; padding: 8px; text-align: left; }
+        .no-border td { border: none; padding: 5px; }
+        .ttd { margin-top: 50px; width: 100%; text-align: center; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h2>CV SEMBADA TANI</h2>
+        <div>Distributor Pupuk Resmi - Kabupaten Semarang</div>
+    </div>
+
+    <div class="title" style="text-align: center;">SURAT JALAN</div>
+    <div style="text-align: center;">Nomor: {{ dist.do_number }}</div>
+
+    <table class="no-border">
+        <tr>
+            <td width="15%"><strong>Kepada Yth:</strong></td>
+            <td>{{ dist.kios.name }}<br>{{ dist.kios.address }}</td>
+            <td width="15%"><strong>Tanggal:</strong></td>
+            <td>{{ dist.distribution_date|date:"d F Y" }}</td>
+        </tr>
+        <tr>
+            <td><strong>Armada:</strong></td>
+            <td>{{ dist.armada.plate_number }} ({{ dist.armada.driver_name }})</td>
+            <td><strong>Pengirim:</strong></td>
+            <td>Gudang Penyangga</td>
+        </tr>
+    </table>
+
+    <table>
+        <thead>
+            <tr style="background-color: #ddd;">
+                <th width="10%">No</th>
+                <th>Nama Barang</th>
+                <th width="20%">Satuan</th>
+                <th width="20%">Jumlah</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>1</td>
+                <td>Pupuk {{ dist.sales_order.fertilizer_type }} (Subsidi)</td>
+                <td>Ton</td>
+                <td>{{ dist.tonnage_sent }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <table class="no-border ttd">
+        <tr>
+            <td>Penerima</td>
+            <td>Sopir</td>
+            <td>Hormat Kami,</td>
+        </tr>
+        <tr>
+            <td height="60"><br><br><br></td>
+            <td><br><br><br></td>
+            <td><br><br><br></td>
+        </tr>
+        <tr>
+            <td>( {{ dist.kios.pic_name }} )</td>
+            <td>( {{ dist.armada.driver_name }} )</td>
+            <td>( Admin Gudang )</td>
+        </tr>
+    </table>
+</body>
+</html>

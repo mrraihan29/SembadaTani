@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard - Sembada Tani{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-8">
+        <h2 class="fw-bold text-dark">👋 Selamat Datang, Admin!</h2>
+        <p class="text-muted">Ringkasan aktivitas distribusi pupuk hari ini.</p>
+    </div>
+    <div class="col-md-4 text-end">
+        <span class="badge bg-secondary p-2">{{ today|date:"l, d F Y" }}</span>
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-4">
+        <div class="card h-100 border-start border-4 border-danger">
+            <div class="card-body">
+                <h6 class="text-muted text-uppercase mb-2">Jatuh Tempo < 7 Hari</h6>
+                <h3 class="fw-bold text-danger">3 SO</h3>
+                <small>Segera lakukan penyaluran.</small>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card h-100 border-start border-4 border-warning">
+            <div class="card-body">
+                <h6 class="text-muted text-uppercase mb-2">Total Piutang</h6>
+                <h3 class="fw-bold text-warning">Rp 150.000.000</h3>
+                <small>5 Kios belum lunas.</small>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card h-100 border-start border-4 border-success">
+            <div class="card-body">
+                <h6 class="text-muted text-uppercase mb-2">Sisa Stok Gudang</h6>
+                <h3 class="fw-bold text-success">120 Ton</h3>
+                <small>Kondisi Aman.</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="alert alert-info">
+    ℹ️ <strong>Info:</strong> Data di atas masih contoh (Dummy). Nanti kita sambungkan dengan Database.
+</div>
+{% endblock %}
