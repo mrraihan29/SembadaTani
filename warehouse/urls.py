@@ -1,7 +1,8 @@
 from django.urls import path
 from .views import (
-    PenebusanCreateView, SalesOrderListView, 
-    PenyaluranCreateView, DistributionListView, SuratJalanPDFView
+    PenebusanCreateView, SalesOrderListView, PenyaluranCreateView, 
+    DistributionListView, SuratJalanPDFView, StockCardListView,
+    AllocationReportView
 )
 
 urlpatterns = [
@@ -13,4 +14,9 @@ urlpatterns = [
     path('penyaluran/list/', DistributionListView.as_view(), name='dist_list'),
     path('penyaluran/add/', PenyaluranCreateView.as_view(), name='penyaluran_add'),
     path('penyaluran/print-sj/<int:pk>/', SuratJalanPDFView.as_view(), name='print_sj'),
+
+    #-- Laporan Kartu Stok URLs ---
+    path('stock-card/', StockCardListView.as_view(), name='stock_card_list'),
+    
+    path('allocation-report/', AllocationReportView.as_view(), name='allocation_report'),
 ]

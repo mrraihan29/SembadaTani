@@ -1,0 +1,105 @@
+{% extends 'base.html' %}
+{% load humanize %}
+
+{% block title %}Laporan Kartu Stok{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold text-dark">📊 Kartu Stok (Mutasi)</h2>
+        <p class="text-muted mb-0">Audit riwayat pergerakan barang masuk dan keluar.</p>
+    </div>
+</div>
+
+<div class="card shadow-sm mb-4">
+    <div class="card-body bg-light">
+        <form method="get" class="row g-3 align-items-end">
+            <div class="col-md-4">
+                <label class="form-label fw-bold">Cari Kode SO</label>
+                <input type="text" name="so_code" class="form-control" placeholder="Masukan Kode SO..." value="{{ request.GET.so_code }}">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label fw-bold">Jenis Transaksi</label>
+                <select name="type" class="form-select">
+                    <option value="">Semua</option>
+                    <option value="IN" {% if request.GET.type == 'IN' %}selected{% endif %}>Masuk (Penebusan)</option>
+                    <option value="OUT" {% if request.GET.type == 'OUT' %}selected{% endif %}>Keluar (Penyaluran)</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-primary w-100">🔍 Filter</button>
+            </div>
+            <div class="col-md-2">
+                 <a href="{% url 'stock_card_list' %}" class="btn btn-outline-secondary w-100">Reset</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover table-bordered mb-0 align-middle text-center">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Tanggal / Jam</th>
+                        <th>Kode SO</th>
+                        <th>No. Ref</th>
+                        <th>Jenis</th>
+                        <th>Masuk (Ton)</th>
+                        <th>Keluar (Ton)</th>
+                        <th>Saldo Akhir</th>
+                        <th>Keterangan</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for card in cards %}
+                    <tr>
+                        <td>{{ card.date|date:"d M Y H:i" }}</td>
+                        <td class="fw-bold">{{ card.sales_order.so_code }}</td>
+                        <td>{{ card.reference_number }}</td>
+                        <td>
+                            {% if card.transaction_type == 'IN' %}
+                                <span class="badge bg-success">MASUK</span>
+                            {% else %}
+                                <span class="badge bg-danger">KELUAR</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-success fw-bold">
+                            {% if card.tonnage_in > 0 %}+{{ card.tonnage_in|floatformat:2 }}{% else %}-{% endif %}
+                        </td>
+                        <td class="text-danger fw-bold">
+                            {% if card.tonnage_out > 0 %}-{{ card.tonnage_out|floatformat:2 }}{% else %}-{% endif %}
+                        </td>
+                        <td class="bg-light fw-bold">{{ card.balance|floatformat:2 }}</td>
+                        <td class="text-start text-muted small">{{ card.description|default:"-" }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="8" class="text-center py-5 text-muted">
+                            🚫 Belum ada riwayat mutasi stok.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    {% if is_paginated %}
+    <div class="card-footer">
+        <nav>
+            <ul class="pagination justify-content-center mb-0">
+                {% if page_obj.has_previous %}
+                    <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">Sebelumnya</a></li>
+                {% endif %}
+                <li class="page-item disabled"><a class="page-link">Hal {{ page_obj.number }}</a></li>
+                {% if page_obj.has_next %}
+                    <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">Berikutnya</a></li>
+                {% endif %}
+            </ul>
+        </nav>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="alert alert-danger text-center">
+    <h4>⚠️ Konfirmasi Hapus</h4>
+    <p>Apakah Anda yakin ingin menghapus user <strong>{{ object.username }}</strong>?</p>
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger">Ya, Hapus Permanen</button>
+        <a href="{% url 'user_list' %}" class="btn btn-secondary">Batal</a>
+    </form>
+</div>
+{% endblock %}

@@ -12,6 +12,9 @@ from django.db.models import Sum
 from .models import Invoice, Payment
 from .forms import PaymentForm
 
+from django.utils.decorators import method_decorator
+from core.decorators import role_required
+
 # --- FUNGSI BANTUAN CETAK PDF ---
 def render_pdf_view(template_src, context_dict={}):
     template = get_template(template_src)
@@ -24,6 +27,7 @@ def render_pdf_view(template_src, context_dict={}):
     return response
 
 # --- 1. CETAK INVOICE ---
+@method_decorator(role_required(allowed_roles=['ADMIN_FINANCE', 'ADMIN_GUDANG']), name='dispatch')
 class InvoicePDFView(LoginRequiredMixin, View):
     def get(self, request, pk):
         # Ambil invoice berdasarkan ID Distribution
@@ -37,6 +41,7 @@ class InvoicePDFView(LoginRequiredMixin, View):
         return render_pdf_view('finance/pdf_invoice.html', context)
 
 # --- 2. MONITORING PIUTANG (LIST) ---
+@method_decorator(role_required(allowed_roles=['ADMIN_FINANCE']), name='dispatch')
 class InvoiceListView(LoginRequiredMixin, ListView):
     model = Invoice
     template_name = 'finance/invoice_list.html'
@@ -49,6 +54,7 @@ class InvoiceListView(LoginRequiredMixin, ListView):
         return context
 
 # --- 3. INPUT PEMBAYARAN (FIX ERROR DISINI) ---
+@method_decorator(role_required(allowed_roles=['ADMIN_FINANCE']), name='dispatch')
 class PaymentCreateView(LoginRequiredMixin, CreateView):
     model = Payment
     form_class = PaymentForm

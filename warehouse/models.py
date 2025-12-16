@@ -33,15 +33,18 @@ class SalesOrder(models.Model):
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='AMAN', editable=False)
 
     def save(self, *args, **kwargs):
+        # Cek apakah ini data baru (sebelum disimpan, PK masih None)
+        is_new = self.pk is None
+        
         # 1. Otomatis hitung jatuh tempo (+21 hari) jika belum ada
         if not self.due_date_gudang:
             self.due_date_gudang = self.input_date + timedelta(days=21)
         
-        # [FIX] Inisialisasi Stok Awal jika data baru
+        # 2. Inisialisasi Stok Awal
         if self.current_stock is None:
             self.current_stock = self.initial_tonnage
             
-        # 2. Update Status otomatis
+        # 3. Update Status otomatis
         if self.current_stock <= 0:
             self.status = 'HABIS'
         else:
@@ -53,14 +56,26 @@ class SalesOrder(models.Model):
             else:
                 self.status = 'AMAN'
                 
+        # Simpan Data SO Dulu (agar dapat ID)
         super().save(*args, **kwargs)
 
-    def __str__(self):
-        return f"{self.so_code} - {self.district_allocation} ({self.current_stock} Ton)"
-
-    class Meta:
-        verbose_name = "Penebusan (SO)"
-        verbose_name_plural = "Data Penebusan (SO)"
+        # --- [FIX BARU] CATAT KE KARTU STOK (LOGIC INBOUND) ---
+        # Hanya jalankan jika ini adalah input baru (Penebusan Baru)
+        if is_new:
+            # Kita panggil model StockCard secara dinamis agar tidak circular import
+            StockCard = apps.get_model('warehouse', 'StockCard')
+            
+            StockCard.objects.create(
+                sales_order=self,
+                date=timezone.now(),
+                transaction_type='IN', # Tipe MASUK
+                reference_number=f"SO/{self.so_code}", # Ref pakai Kode SO
+                tonnage_in=self.initial_tonnage,
+                tonnage_out=0,
+                balance=self.current_stock,
+                status_location='PENYANGGA',
+                description=f"Penebusan Awal ({self.district_allocation})"
+            )
 
 
 class Distribution(models.Model):

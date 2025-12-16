@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+{% load humanize %}
+
+{% block title %}Monitoring Alokasi (RDKK){% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold text-dark">📉 Monitoring Realisasi Alokasi</h2>
+        <p class="text-muted mb-0">Bandingkan Jatah Kuota vs Realisasi Penyaluran.</p>
+    </div>
+</div>
+
+<div class="card shadow-sm mb-4">
+    <div class="card-body">
+        <form method="get" class="d-flex gap-2 align-items-center">
+            <span class="fw-bold">Pilih Jenis Pupuk:</span>
+            <a href="?type=UREA" class="btn {% if selected_type == 'UREA' %}btn-primary{% else %}btn-outline-primary{% endif %}">
+                UREA
+            </a>
+            <a href="?type=NPK" class="btn {% if selected_type == 'NPK' %}btn-success{% else %}btn-outline-success{% endif %}">
+                NPK
+            </a>
+        </form>
+    </div>
+</div>
+
+<div class="card shadow-sm border-top border-4 {% if selected_type == 'UREA' %}border-primary{% else %}border-success{% endif %}">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover table-striped mb-0 align-middle">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Kecamatan</th>
+                        <th>Nama Kios</th>
+                        <th class="text-end">Jatah Kuota (Ton)</th>
+                        <th class="text-end">Sudah Dikirim (Ton)</th>
+                        <th class="text-end">Sisa Kuota</th>
+                        <th class="text-center">% Capaian</th>
+                        <th class="text-center">Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in report_data %}
+                    <tr>
+                        <td>{{ item.kios.district }}</td>
+                        <td class="fw-bold">{{ item.kios.name }}</td>
+                        <td class="text-end">{{ item.quota|floatformat:2 }}</td>
+                        <td class="text-end text-primary fw-bold">{{ item.realization|floatformat:2 }}</td>
+                        
+                        <td class="text-end fw-bold {% if item.remaining < 0 %}text-danger{% elif item.remaining < 5 %}text-warning{% else %}text-success{% endif %}">
+                            {{ item.remaining|floatformat:2 }}
+                        </td>
+
+                        <td class="text-center">
+                            <div class="progress" style="height: 20px;">
+                                <div class="progress-bar {% if item.percentage > 100 %}bg-danger{% elif item.percentage > 80 %}bg-warning{% else %}bg-success{% endif %}" 
+                                     role="progressbar" 
+                                     style="width: {{ item.percentage|floatformat:0 }}%">
+                                    {{ item.percentage|floatformat:0 }}%
+                                </div>
+                            </div>
+                        </td>
+                        <td class="text-center">
+                            {% if item.status == 'OVER' %}
+                                <span class="badge bg-danger">OVER LIMIT!</span>
+                            {% elif item.percentage >= 100 %}
+                                <span class="badge bg-success">SELESAI</span>
+                            {% else %}
+                                <span class="badge bg-light text-dark border">ON TRACK</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" class="text-center py-5 text-muted">
+                            Belum ada data alokasi atau transaksi untuk jenis pupuk ini.
+                            <br>
+                            <small>Silakan input Alokasi di Menu Admin atau Lakukan Penyaluran.</small>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

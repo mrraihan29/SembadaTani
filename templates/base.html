@@ -18,29 +18,65 @@
   </head>
   <body>
 
-    <nav class="navbar navbar-expand-lg mb-4">
-      <div class="container">
-        <a class="navbar-brand fw-bold" href="/">🌱 SEMBADA TANI</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-          <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-          <ul class="navbar-nav ms-auto">
-            <li class="nav-item"><a class="nav-link" href="/">Dashboard</a></li>
-            <li class="nav-item"><a class="nav-link" href="/admin">Master Data (Admin)</a></li>
-            <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">Transaksi</a>
-                <ul class="dropdown-menu">
-                  <li><a class="dropdown-item" href="#">Penebusan (Masuk)</a></li>
-                  <li><a class="dropdown-item" href="#">Penyaluran (Keluar)</a></li>
-                </ul>
-            </li>
-            <li class="nav-item"><a class="nav-link" href="#">Laporan</a></li>
-            <li class="nav-item"><a class="nav-link" href="{% url 'invoice_list' %}">Keuangan</a></li>
-          </ul>
-        </div>
+  <nav class="navbar navbar-expand-lg mb-4">
+    <div class="container">
+      <a class="navbar-brand fw-bold" href="/">🌱 SEMBADA TANI</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto">
+          
+          <li class="nav-item"><a class="nav-link" href="/">Dashboard</a></li>
+
+          {% if user.role == 'ADMIN_GUDANG' or user.role == 'SUPERUSER' or user.is_superuser %}
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">Transaksi</a>
+            <ul class="dropdown-menu">
+              <li><a class="dropdown-item" href="{% url 'penebusan_add' %}">Input Penebusan (Masuk)</a></li>
+              <li><a class="dropdown-item" href="{% url 'so_list' %}">Data SO Aktif</a></li>
+              <li><hr class="dropdown-divider"></li>
+              <li><a class="dropdown-item" href="{% url 'penyaluran_add' %}">Input Penyaluran (Keluar)</a></li>
+              <li><a class="dropdown-item" href="{% url 'dist_list' %}">Riwayat Pengiriman</a></li>
+              <li><hr class="dropdown-divider"></li>
+              <li><a class="dropdown-item fw-bold" href="{% url 'stock_card_list' %}">📊 Laporan Kartu Stok</a></li>
+            </ul>
+          </li>
+          
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">Laporan & Analisa</a>
+            <ul class="dropdown-menu">
+                <li><a class="dropdown-item" href="{% url 'allocation_report' %}">📉 Realisasi Alokasi (RDKK)</a></li>
+            </ul>
+          </li>
+          {% endif %}
+
+          {% if user.role == 'ADMIN_FINANCE' or user.role == 'SUPERUSER' or user.is_superuser %}
+          <li class="nav-item"><a class="nav-link" href="{% url 'invoice_list' %}">Keuangan</a></li>
+          {% endif %}
+
+          <li class="nav-item"><a class="nav-link" href="{% url 'operational_list' %}">Operasional</a></li>
+
+          {% if user.role == 'SUPERUSER' or user.is_superuser %}
+          <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle fw-bold text-warning" href="#" data-bs-toggle="dropdown">⚙️ Kelola Akun</a>
+              <ul class="dropdown-menu">
+                  <li><a class="dropdown-item" href="{% url 'user_list' %}">👥 Manajemen User</a></li>
+                  <li><hr class="dropdown-divider"></li>
+                  <li><a class="dropdown-item" href="/admin" target="_blank">🔧 Backend Admin Panel</a></li>
+              </ul>
+          </li>
+          {% endif %}
+          <li class="nav-item border-start ms-3 ps-3">
+            <form action="{% url 'logout' %}" method="post">
+                {% csrf_token %}
+                <button class="btn btn-outline-danger btn-sm mt-1" type="submit">Log Out</button>
+            </form>
+          </li>
+        </ul>
       </div>
-    </nav>
+    </div>
+  </nav>
 
     <div class="container">
         {% if messages %}

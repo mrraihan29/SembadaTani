@@ -7,7 +7,11 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from .models import OperationalCost
 from .forms import OperationalForm
 
+from django.utils.decorators import method_decorator
+from core.decorators import role_required
+
 # --- 1. LIST BIAYA OPERASIONAL ---
+@method_decorator(role_required(allowed_roles=['ADMIN_GUDANG', 'ADMIN_FINANCE']), name='dispatch')
 class OperationalListView(LoginRequiredMixin, ListView):
     model = OperationalCost
     template_name = 'operational/cost_list.html'
@@ -15,6 +19,7 @@ class OperationalListView(LoginRequiredMixin, ListView):
     ordering = ['-created_at']
 
 # --- 2. INPUT BIAYA BARU ---
+@method_decorator(role_required(allowed_roles=['ADMIN_GUDANG', 'ADMIN_FINANCE']), name='dispatch')
 class OperationalCreateView(LoginRequiredMixin, CreateView):
     model = OperationalCost
     form_class = OperationalForm

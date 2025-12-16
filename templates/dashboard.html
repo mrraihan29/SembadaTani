@@ -1,51 +1,144 @@
 {% extends 'base.html' %}
+{% load humanize %}
 
 {% block title %}Dashboard - Sembada Tani{% endblock %}
 
 {% block content %}
-<div class="row mb-4">
+<div class="row mb-4 align-items-center">
     <div class="col-md-8">
-        <h2 class="fw-bold text-dark">👋 Selamat Datang, Admin!</h2>
-        <p class="text-muted">Ringkasan aktivitas distribusi pupuk hari ini.</p>
+        <h2 class="fw-bold text-dark">👋 Selamat Datang, {{ user.username|title }}!</h2>
+        <p class="text-muted">Pantau kondisi stok dan keuangan perusahaan secara real-time.</p>
     </div>
-    <div class="col-md-4 text-end">
-        <span class="badge bg-secondary p-2">{{ today|date:"l, d F Y" }}</span>
+    <div class="col-md-4 text-md-end">
+        <span class="badge bg-light text-dark border p-2">
+            📅 Hari ini: {{ today|date:"l, d F Y" }}
+        </span>
     </div>
 </div>
 
 <div class="row g-3 mb-4">
     <div class="col-md-4">
-        <div class="card h-100 border-start border-4 border-danger">
-            <div class="card-body">
-                <h6 class="text-muted text-uppercase mb-2">Jatuh Tempo < 7 Hari</h6>
-                <h3 class="fw-bold text-danger">3 SO</h3>
-                <small>Segera lakukan penyaluran.</small>
+        {% if count_overdue > 0 %}
+            <div class="card h-100 border-start border-4 border-danger bg-danger bg-opacity-10">
+                <div class="card-body">
+                    <h6 class="text-danger text-uppercase fw-bold mb-2">🚨 BAHAYA (OVERDUE)</h6>
+                    <h3 class="fw-bold text-danger">{{ count_overdue }} SO</h3>
+                    <small class="text-dark">Stok masih ada tapi sudah lewat jatuh tempo!</small>
+                </div>
             </div>
-        </div>
+        {% elif count_warning > 0 %}
+            <div class="card h-100 border-start border-4 border-warning bg-warning bg-opacity-10">
+                <div class="card-body">
+                    <h6 class="text-warning text-uppercase fw-bold mb-2">⚠️ PERLU PERHATIAN</h6>
+                    <h3 class="fw-bold text-warning">{{ count_warning }} SO</h3>
+                    <small class="text-dark">Akan jatuh tempo < 7 hari lagi.</small>
+                </div>
+            </div>
+        {% else %}
+            <div class="card h-100 border-start border-4 border-success">
+                <div class="card-body">
+                    <h6 class="text-success text-uppercase fw-bold mb-2">✅ KONDISI STOK</h6>
+                    <h3 class="fw-bold text-success">AMAN</h3>
+                    <small class="text-muted">Tidak ada stok mendesak.</small>
+                </div>
+            </div>
+        {% endif %}
     </div>
     
     <div class="col-md-4">
-        <div class="card h-100 border-start border-4 border-warning">
+        <div class="card h-100 border-start border-4 border-primary">
             <div class="card-body">
-                <h6 class="text-muted text-uppercase mb-2">Total Piutang</h6>
-                <h3 class="fw-bold text-warning">Rp 150.000.000</h3>
-                <small>5 Kios belum lunas.</small>
+                <h6 class="text-primary text-uppercase fw-bold mb-2">Gudang Fisik</h6>
+                <h3 class="fw-bold text-dark">{{ total_stock|floatformat:2 }} Ton</h3>
+                <small class="text-muted">Total saldo stok saat ini.</small>
             </div>
         </div>
     </div>
 
     <div class="col-md-4">
-        <div class="card h-100 border-start border-4 border-success">
+        <div class="card h-100 border-start border-4 border-info">
             <div class="card-body">
-                <h6 class="text-muted text-uppercase mb-2">Sisa Stok Gudang</h6>
-                <h3 class="fw-bold text-success">120 Ton</h3>
-                <small>Kondisi Aman.</small>
+                <h6 class="text-info text-uppercase fw-bold mb-2">Total Piutang Berjalan</h6>
+                <h3 class="fw-bold text-dark">Rp {{ total_piutang|intcomma }}</h3>
+                <small class="text-muted">Uang yang belum tertagih di Kios.</small>
             </div>
         </div>
     </div>
 </div>
 
-<div class="alert alert-info">
-    ℹ️ <strong>Info:</strong> Data di atas masih contoh (Dummy). Nanti kita sambungkan dengan Database.
+{% if warning_list %}
+<div class="card shadow-sm mb-4">
+    <div class="card-header bg-danger text-white">
+        <h5 class="mb-0 fw-bold">🔥 Prioritas Penyaluran (Barang Mau Expired)</h5>
+    </div>
+    <div class="card-body p-0">
+        <table class="table table-hover mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>Kode SO</th>
+                    <th>Jenis Pupuk</th>
+                    <th>Sisa Stok</th>
+                    <th>Jatuh Tempo</th>
+                    <th>Status</th>
+                    <th>Aksi</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for so in warning_list %}
+                <tr>
+                    <td class="fw-bold">{{ so.so_code }}</td>
+                    <td>{{ so.fertilizer_type }}</td>
+                    <td class="fw-bold">{{ so.current_stock }} Ton</td>
+                    <td>
+                        {{ so.due_date_gudang|date:"d M Y" }}
+                        <br>
+                        
+                        <small class="text-muted">
+                            {% if today > so.due_date_gudang %}
+                                <span class="text-danger fw-bold">
+                                    ({{ today|timesince:so.due_date_gudang }} lalu)
+                                </span>
+                            {% else %}
+                                <span class="text-warning text-dark">
+                                    ({{ today|timeuntil:so.due_date_gudang }} lagi)
+                                </span>
+                            {% endif %}
+                        </small>
+                    </td>
+                    <td>
+                        {% if today > so.due_date_gudang %}
+                            <span class="badge bg-danger">OVERDUE</span>
+                        {% else %}
+                            <span class="badge bg-warning text-dark">WARNING</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a href="{% url 'penyaluran_add' %}" class="btn btn-sm btn-primary">
+                            🚀 Segera Kirim
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
+
+<div class="row g-3">
+    <div class="col-md-6">
+        <div class="d-grid">
+            <a href="{% url 'penebusan_add' %}" class="btn btn-outline-success py-3">
+                <strong>+ Input Penebusan Baru (SO)</strong>
+            </a>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="d-grid">
+            <a href="{% url 'penyaluran_add' %}" class="btn btn-outline-primary py-3">
+                <strong>+ Input Penyaluran (Kirim Barang)</strong>
+            </a>
+        </div>
+    </div>
 </div>
 {% endblock %}

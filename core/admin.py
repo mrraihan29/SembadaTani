@@ -1,41 +1,43 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from .models import User, Regency, Kios, KiosAllocation, Armada, FertilizerPrice
+from .models import User, Regency, Kios, Armada, FertilizerPrice, KiosAllocation
 
-# 1. Custom User Admin (Agar field 'role' & 'regency' muncul)
+# --- 1. USER ADMIN (Bawaan Django disesuaikan) ---
 @admin.register(User)
 class CustomUserAdmin(UserAdmin):
+    list_display = ('username', 'email', 'role', 'assigned_regency', 'is_staff')
+    list_filter = ('role', 'is_staff')
     fieldsets = UserAdmin.fieldsets + (
-        ('Info Tambahan', {'fields': ('role', 'assigned_regency')}),
+        ('Custom Info', {'fields': ('role', 'assigned_regency')}),
     )
-    list_display = ('username', 'email', 'role', 'assigned_regency', 'is_active')
-    list_filter = ('role', 'assigned_regency', 'is_active')
 
-# 2. Master Wilayah
+# --- 2. MASTER WILAYAH ---
 @admin.register(Regency)
 class RegencyAdmin(admin.ModelAdmin):
     list_display = ('name', 'code')
     search_fields = ('name',)
 
-# 3. Master Kios & Alokasi (Inline)
-class AllocationInline(admin.TabularInline):
-    model = KiosAllocation
-    extra = 1  # Menampilkan 1 baris kosong untuk input
-
+# --- 3. MASTER KIOS ---
 @admin.register(Kios)
 class KiosAdmin(admin.ModelAdmin):
-    list_display = ('name', 'district', 'regency', 'pic_name', 'phone')
-    list_filter = ('regency', 'district')
-    search_fields = ('name', 'pic_name')
-    inlines = [AllocationInline] # Agar bisa input alokasi langsung di halaman Kios
+    list_display = ('name', 'district', 'pic_name', 'phone')
+    list_filter = ('district',)
+    search_fields = ('name', 'district')
 
-# 4. Master Armada
+# --- 4. MASTER ALOKASI RDKK (INI YANG TADI HILANG) ---
+@admin.register(KiosAllocation)
+class KiosAllocationAdmin(admin.ModelAdmin):
+    list_display = ('kios', 'year', 'fertilizer_type', 'allocation_amount')
+    list_filter = ('year', 'fertilizer_type')
+    search_fields = ('kios__name',)
+    ordering = ['kios__district']
+
+# --- 5. MASTER ARMADA ---
 @admin.register(Armada)
 class ArmadaAdmin(admin.ModelAdmin):
-    list_display = ('plate_number', 'vehicle_type', 'driver_name', 'regency')
-    list_filter = ('regency', 'vehicle_type')
+    list_display = ('plate_number', 'driver_name', 'vehicle_type', 'regency')
 
-# 5. Master Harga
+# --- 6. MASTER HARGA ---
 @admin.register(FertilizerPrice)
-class PriceAdmin(admin.ModelAdmin):
+class FertilizerPriceAdmin(admin.ModelAdmin):
     list_display = ('fertilizer_type', 'price_per_ton', 'updated_at')
